@@ -2,6 +2,16 @@
     'use strict';
 
     const config = window.scbConfig || {};
+
+    // Stringhe traducibili, con fallback se scbConfig non è disponibile
+    const i18n = Object.assign({
+        listen: 'Ascolta risposta',
+        stopListening: 'Ferma lettura',
+        speak: 'Parla',
+        listening: 'Sto ascoltando... (clicca per fermare)',
+        useful: 'Utile',
+        notUseful: 'Non utile'
+    }, config.i18n || {});
     let isOpen = false;
     let sessionId = localStorage.getItem('scb_session_id');
     let lastMessageId = null;
@@ -18,6 +28,49 @@
     if (!sessionId) {
         sessionId = 'scb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('scb_session_id', sessionId);
+    }
+
+    // ==================== INFORMATIVA AL PRIMO USO ====================
+    // Il markup del gate è reso lato server ed è visibile di default: viene
+    // rimosso solo se troviamo una presa d'atto valida. Se questo script non
+    // parte, il gate resta su — è il verso giusto in cui fallire.
+
+    const AGE_GATE_KEY = 'scb_age_ack';
+
+    function ageGateAcknowledged() {
+        if (!config.ageGateEnabled) return true;
+        try {
+            return localStorage.getItem(AGE_GATE_KEY) === String(config.ageGateVersion || '1');
+        } catch (e) {
+            // localStorage non disponibile (private browsing, cookie bloccati):
+            // mostriamo l'informativa a ogni sessione anziché saltarla.
+            return false;
+        }
+    }
+
+    function acknowledgeAgeGate() {
+        try {
+            localStorage.setItem(AGE_GATE_KEY, String(config.ageGateVersion || '1'));
+        } catch (e) { /* la presa d'atto vale per questa sessione */ }
+
+        document.querySelectorAll('.scb-age-gate').forEach(function(gate) {
+            gate.remove();
+        });
+    }
+
+    if (ageGateAcknowledged()) {
+        document.querySelectorAll('.scb-age-gate').forEach(function(gate) {
+            gate.remove();
+        });
+    } else {
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('scb-age-gate-accept')) {
+                acknowledgeAgeGate();
+                var scope = e.target.closest('.scb-inline-chatbot') || document;
+                var field = scope.querySelector('.scb-inline-input') || document.getElementById('scb-input');
+                if (field) field.focus();
+            }
+        });
     }
 
     // Elementi DOM - Widget flottante
@@ -163,7 +216,7 @@
         document.querySelectorAll('.scb-tts-btn').forEach(function(btn) {
             var isThisPlaying = isSpeaking && btn.dataset.playing === 'true';
             btn.innerHTML = isThisPlaying ? '⏹️' : '🔊';
-            btn.title = isThisPlaying ? 'Ferma lettura' : 'Ascolta risposta';
+            btn.title = isThisPlaying ? i18n.stopListening : i18n.listen;
             btn.dataset.playing = isThisPlaying ? 'true' : 'false';
         });
     }
@@ -255,10 +308,10 @@
         
         if (isListening) {
             voiceBtn.classList.add('scb-listening');
-            voiceBtn.title = 'Sto ascoltando... (clicca per fermare)';
+            voiceBtn.title = i18n.listening;
         } else {
             voiceBtn.classList.remove('scb-listening');
-            voiceBtn.title = 'Parla';
+            voiceBtn.title = i18n.speak;
         }
     }
     
@@ -365,6 +418,15 @@
         const div = document.createElement('div');
         div.className = 'scb-message scb-message-' + type;
         if (isPrimary) div.classList.add('scb-primary');
+
+        // Marcatura dei contenuti generati dall'IA. L'obbligo di marcatura
+        // leggibile dalle macchine dell'AI Act (art. 50 c. 2) grava soprattutto
+        // sul fornitore del modello, e per il testo conversazionale la sua
+        // portata è discussa: questo attributo rende comunque distinguibile a
+        // uno scraper o a una tecnologia assistiva cosa ha scritto la macchina.
+        if (type === 'bot') {
+            div.dataset.aiGenerated = 'true';
+        }
         
         // Contenuto messaggio
         var contentDiv = document.createElement('div');
@@ -382,7 +444,7 @@
                 var ttsBtn = document.createElement('button');
                 ttsBtn.className = 'scb-tts-btn';
                 ttsBtn.innerHTML = '🔊';
-                ttsBtn.title = 'Ascolta risposta';
+                ttsBtn.title = i18n.listen;
                 ttsBtn.dataset.text = text;
                 ttsBtn.dataset.playing = 'false';
                 actionsDiv.appendChild(ttsBtn);
@@ -393,8 +455,8 @@
                 var feedbackDiv = document.createElement('span');
                 feedbackDiv.className = 'scb-feedback';
                 feedbackDiv.innerHTML = 
-                    '<button class="scb-feedback-btn" data-feedback="1" data-message="' + messageId + '" title="Utile">👍</button>' +
-                    '<button class="scb-feedback-btn" data-feedback="0" data-message="' + messageId + '" title="Non utile">👎</button>';
+                    '<button class="scb-feedback-btn" data-feedback="1" data-message="' + messageId + '" title="' + i18n.useful + '">👍</button>' +
+                    '<button class="scb-feedback-btn" data-feedback="0" data-message="' + messageId + '" title="' + i18n.notUseful + '">👎</button>';
                 actionsDiv.appendChild(feedbackDiv);
             }
             
@@ -470,7 +532,10 @@
 
     function sendMessage(text, messagesContainer, inputEl, suggestionsContainer) {
         if (!text.trim()) return;
-        
+
+        // Nessun invio finché l'informativa non è stata presa in carico
+        if (!ageGateAcknowledged()) return;
+
         // Ferma TTS quando si invia nuovo messaggio
         stopSpeaking();
 
@@ -490,6 +555,7 @@
         formData.append('message', text);
         formData.append('session_id', sessionId);
         formData.append('page_url', config.currentUrl || window.location.href);
+        formData.append('notice_ack', '1');
 
         fetch(config.ajaxUrl, {
             method: 'POST',
@@ -561,6 +627,7 @@
             formData.append('nonce', config.nonce);
             formData.append('message_id', messageId);
             formData.append('feedback', feedback);
+            formData.append('session_id', sessionId);
 
             fetch(config.ajaxUrl, {
                 method: 'POST',

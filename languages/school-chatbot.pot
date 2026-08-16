@@ -1,0 +1,766 @@
+# Copyright (C) 2026 Davide Bertolino
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: School Chatbot AI 1.0.0\n"
+"Report-Msgid-Bugs-To: https://www.davidebertolino.it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: Davide Bertolino\n"
+"X-Domain: school-chatbot\n"
+
+#. translators: 1: numero di richieste API, 2: token di input, 3: token di output
+#: school-chatbot.php:835
+msgid "%1$s richieste API · input %2$s · output %3$s"
+msgstr ""
+
+#: school-chatbot.php:313
+msgid "API Key"
+msgstr ""
+
+#: school-chatbot.php:297
+msgid "Abilita chatbot"
+msgstr ""
+
+#: school-chatbot.php:417
+msgid "Abilita feedback (pollice su/giù)"
+msgstr ""
+
+#: school-chatbot.php:601
+msgid "Abilita notifiche via email"
+msgstr ""
+
+#: school-chatbot.php:1377
+msgid "Accessibilità"
+msgstr ""
+
+#: school-chatbot.php:685
+#: school-chatbot.php:1399
+msgid "Alto contrasto"
+msgstr ""
+
+#: school-chatbot.php:173
+#: school-chatbot.php:174
+msgid "Analytics"
+msgstr ""
+
+#: school-chatbot.php:1360
+msgid "Apri la chat con l'assistente basato su intelligenza artificiale"
+msgstr ""
+
+#: school-chatbot.php:1230
+msgid "Ascolta risposta"
+msgstr ""
+
+#: school-chatbot.php:339
+msgid "Aspetto"
+msgstr ""
+
+#: school-chatbot.php:1373
+#: school-chatbot.php:1443
+msgid "Assistente Scolastico"
+msgstr ""
+
+#: school-chatbot.php:1374
+#: school-chatbot.php:1453
+msgid "Assistente basato su intelligenza artificiale"
+msgstr ""
+
+#: school-chatbot.php:490
+msgid "Azione"
+msgstr ""
+
+#: school-chatbot.php:942
+msgid "Azioni"
+msgstr ""
+
+#: school-chatbot.php:357
+msgid "Basso a destra"
+msgstr ""
+
+#: school-chatbot.php:358
+msgid "Basso a sinistra"
+msgstr ""
+
+#: school-chatbot.php:494
+msgid "Blocca silenziosamente"
+msgstr ""
+
+#: school-chatbot.php:437
+msgid "Cancella le conversazioni dopo"
+msgstr ""
+
+#: school-chatbot.php:997
+msgid "Caricamento..."
+msgstr ""
+
+#: school-chatbot.php:1437
+msgid "Chatbot temporaneamente non disponibile."
+msgstr ""
+
+#: school-chatbot.php:1383
+msgid "Chiudi chat"
+msgstr ""
+
+#: school-chatbot.php:229
+msgid "Ciao! Sono l'assistente virtuale della scuola. Come posso aiutarti?"
+msgstr ""
+
+#: school-chatbot.php:348
+msgid "Colore principale"
+msgstr ""
+
+#: school-chatbot.php:301
+msgid "Configurazione API"
+msgstr ""
+
+#: school-chatbot.php:426
+msgid "Conservazione dei messaggi"
+msgstr ""
+
+#: school-chatbot.php:830
+msgid "Consumo token"
+msgstr ""
+
+#: school-chatbot.php:371
+msgid "Contenuti indicizzati"
+msgstr ""
+
+#: school-chatbot.php:681
+msgid "Contrasto predefinito"
+msgstr ""
+
+#: school-chatbot.php:1396
+msgid "Contrasto:"
+msgstr ""
+
+#: school-chatbot.php:984
+msgid "Conversazione"
+msgstr ""
+
+#: school-chatbot.php:1848
+msgid "Conversazione non trovata"
+msgstr ""
+
+#: school-chatbot.php:182
+#: school-chatbot.php:183
+#: school-chatbot.php:890
+msgid "Conversazioni"
+msgstr ""
+
+#: school-chatbot.php:805
+msgid "Conversazioni (30gg)"
+msgstr ""
+
+#: school-chatbot.php:861
+msgid "Conversazioni per giorno"
+msgstr ""
+
+#: school-chatbot.php:374
+msgid "Custom Post Types"
+msgstr ""
+
+#: school-chatbot.php:941
+msgid "Data"
+msgstr ""
+
+#: school-chatbot.php:671
+msgid "Dimensione font predefinita"
+msgstr ""
+
+#: school-chatbot.php:1388
+msgid "Dimensione testo:"
+msgstr ""
+
+#: school-chatbot.php:433
+msgid "Disattivando il salvataggio restano solo i conteggi per le statistiche. Attenzione: senza storico il chatbot non ricorda i messaggi precedenti e risponde a ogni domanda isolatamente; la pagina Conversazioni e le domande frequenti restano vuote."
+msgstr ""
+
+#: school-chatbot.php:1795
+msgid "Domanda senza risposta"
+msgstr ""
+
+#: school-chatbot.php:592
+msgid "Domanda senza risposta (errore API)"
+msgstr ""
+
+#: school-chatbot.php:1797
+#: school-chatbot.php:1808
+msgid "Domanda:"
+msgstr ""
+
+#: school-chatbot.php:866
+msgid "Domande frequenti"
+msgstr ""
+
+#: school-chatbot.php:366
+msgid "Domande mostrate come pulsanti cliccabili. Una per riga."
+msgstr ""
+
+#: school-chatbot.php:611
+msgid "Domande senza risposta"
+msgstr ""
+
+#: school-chatbot.php:363
+msgid "Domande suggerite"
+msgstr ""
+
+#: school-chatbot.php:2167
+#: school-chatbot.php:2245
+msgid "Errore nella risposta"
+msgstr ""
+
+#: school-chatbot.php:749
+#: school-chatbot.php:1798
+msgid "Errore:"
+msgstr ""
+
+#: school-chatbot.php:576
+msgid "Eventi webhook"
+msgstr ""
+
+#: school-chatbot.php:615
+#: school-chatbot.php:817
+msgid "Feedback negativi"
+msgstr ""
+
+#: school-chatbot.php:584
+msgid "Feedback negativo"
+msgstr ""
+
+#: school-chatbot.php:1806
+msgid "Feedback negativo ricevuto"
+msgstr ""
+
+#: school-chatbot.php:813
+msgid "Feedback positivi"
+msgstr ""
+
+#: school-chatbot.php:1231
+msgid "Ferma lettura"
+msgstr ""
+
+#: school-chatbot.php:410
+msgid "Funzionalità"
+msgstr ""
+
+#: school-chatbot.php:1391
+msgid "Grande"
+msgstr ""
+
+#: school-chatbot.php:675
+msgid "Grande (16px)"
+msgstr ""
+
+#: school-chatbot.php:1526
+msgid "Hai inviato troppi messaggi. Riprova tra poco."
+msgstr ""
+
+#: school-chatbot.php:1292
+msgid "Ho capito, continua"
+msgstr ""
+
+#: school-chatbot.php:1323
+msgid "IA"
+msgstr ""
+
+#: school-chatbot.php:937
+msgid "ID"
+msgstr ""
+
+#: school-chatbot.php:699
+msgid "Il chatbot indicizza automaticamente pagine, post, menu e CPT selezionati."
+msgstr ""
+
+#: school-chatbot.php:240
+msgid "Il chatbot è temporaneamente non disponibile. Contatta la segreteria."
+msgstr ""
+
+#: school-chatbot.php:247
+msgid "Il tuo messaggio contiene contenuti non appropriati. Per favore riformula la domanda."
+msgstr ""
+
+#: school-chatbot.php:293
+msgid "Il widget non è visibile ai visitatori del sito."
+msgstr ""
+
+#: school-chatbot.php:293
+msgid "Il widget è visibile ai visitatori del sito."
+msgstr ""
+
+#: school-chatbot.php:164
+#: school-chatbot.php:165
+msgid "Impostazioni"
+msgstr ""
+
+#: school-chatbot.php:698
+msgid "Indice del sito"
+msgstr ""
+
+#: school-chatbot.php:746
+msgid "Indice ricostruito!"
+msgstr ""
+
+#: school-chatbot.php:454
+msgid "Informativa al primo uso"
+msgstr ""
+
+#: school-chatbot.php:390
+msgid "Informazioni aggiuntive"
+msgstr ""
+
+#: school-chatbot.php:637
+#: school-chatbot.php:1409
+msgid "Input vocale"
+msgstr ""
+
+#: school-chatbot.php:688
+msgid "L'utente può comunque modificare queste impostazioni dal pannello nel widget."
+msgstr ""
+
+#: school-chatbot.php:316
+msgid "La chiave non viene mai mostrata per sicurezza."
+msgstr ""
+
+#: school-chatbot.php:461
+msgid "La legge 132/2025 richiede l'autorizzazione di un genitore per l'uso di sistemi di IA sotto i 14 anni. Disattiva questa opzione solo se la scuola non ha utenti sotto i 14 anni (es. ITS, CPIA, corsi per adulti): la responsabilità della scelta è dell'istituto."
+msgstr ""
+
+#: school-chatbot.php:557
+msgid "Lascia vuoto per usare il messaggio predefinito tradotto automaticamente."
+msgstr ""
+
+#: school-chatbot.php:655
+msgid "Leggi automaticamente ogni risposta"
+msgstr ""
+
+#: school-chatbot.php:1287
+msgid "Leggi l'informativa privacy"
+msgstr ""
+
+#: school-chatbot.php:663
+msgid "Lenta"
+msgstr ""
+
+#: school-chatbot.php:400
+msgid "Limite messaggi"
+msgstr ""
+
+#: school-chatbot.php:527
+msgid "Lingua predefinita"
+msgstr ""
+
+#: school-chatbot.php:421
+msgid "Mantieni storico conversazione (migliora contesto)"
+msgstr ""
+
+#: school-chatbot.php:939
+msgid "Messaggi"
+msgstr ""
+
+#: school-chatbot.php:486
+msgid "Messaggi contenenti queste parole verranno filtrati. Una per riga. Supporta anche frasi."
+msgstr ""
+
+#: school-chatbot.php:546
+msgid "Messaggi di benvenuto"
+msgstr ""
+
+#: school-chatbot.php:809
+msgid "Messaggi totali"
+msgstr ""
+
+#: school-chatbot.php:500
+msgid "Messaggio blocco"
+msgstr ""
+
+#: school-chatbot.php:342
+msgid "Messaggio di benvenuto"
+msgstr ""
+
+#: school-chatbot.php:1912
+msgid "Messaggio non trovato"
+msgstr ""
+
+#: school-chatbot.php:473
+msgid "Messaggio offline"
+msgstr ""
+
+#: school-chatbot.php:1485
+msgid "Messaggio vuoto"
+msgstr ""
+
+#: school-chatbot.php:1818
+msgid "Messaggio:"
+msgstr ""
+
+#: school-chatbot.php:445
+msgid "Meta dei Custom Post Type"
+msgstr ""
+
+#: school-chatbot.php:320
+msgid "Modello Claude"
+msgstr ""
+
+#: school-chatbot.php:331
+msgid "Modello OpenAI"
+msgstr ""
+
+#: school-chatbot.php:664
+msgid "Moderata"
+msgstr ""
+
+#: school-chatbot.php:1392
+msgid "Molto grande"
+msgstr ""
+
+#: school-chatbot.php:676
+msgid "Molto grande (18px)"
+msgstr ""
+
+#: school-chatbot.php:493
+msgid "Mostra avviso e blocca invio"
+msgstr ""
+
+#: school-chatbot.php:706
+msgid "Mostra contenuti indicizzati"
+msgstr ""
+
+#: school-chatbot.php:458
+msgid "Mostra l'informativa e richiedi conferma prima del primo messaggio"
+msgstr ""
+
+#: school-chatbot.php:651
+msgid "Mostra pulsante \"Ascolta risposta\" 🔊"
+msgstr ""
+
+#: school-chatbot.php:641
+msgid "Mostra pulsante microfono 🎤 per dettare messaggi"
+msgstr ""
+
+#: school-chatbot.php:385
+msgid "Nessun custom post type registrato."
+msgstr ""
+
+#: school-chatbot.php:877
+msgid "Nessun dato disponibile."
+msgstr ""
+
+#: school-chatbot.php:960
+msgid "Nessuna conversazione trovata."
+msgstr ""
+
+#: school-chatbot.php:449
+msgid "Nomi dei campi personalizzati da includere nell'indice, uno per riga. Se vuoto non viene inviato nessun campo. Includi solo campi pubblici: quanto elencato qui viene trasmesso al servizio AI."
+msgstr ""
+
+#: school-chatbot.php:1282
+msgid "Non scrivere dati personali tuoi o di altri: nomi, indirizzi, numeri di telefono, informazioni su salute o famiglia."
+msgstr ""
+
+#: school-chatbot.php:1235
+msgid "Non utile"
+msgstr ""
+
+#: school-chatbot.php:665
+#: school-chatbot.php:684
+#: school-chatbot.php:1390
+#: school-chatbot.php:1398
+msgid "Normale"
+msgstr ""
+
+#: school-chatbot.php:674
+msgid "Normale (14px)"
+msgstr ""
+
+#: school-chatbot.php:607
+msgid "Notifica per"
+msgstr ""
+
+#: school-chatbot.php:597
+msgid "Notifiche email"
+msgstr ""
+
+#: school-chatbot.php:580
+msgid "Nuova conversazione"
+msgstr ""
+
+#: school-chatbot.php:413
+msgid "Opzioni"
+msgstr ""
+
+#: school-chatbot.php:1377
+msgid "Opzioni accessibilità"
+msgstr ""
+
+#: school-chatbot.php:392
+msgid "Orari segreteria, contatti, regolamenti..."
+msgstr ""
+
+#: school-chatbot.php:940
+msgid "Pagina"
+msgstr ""
+
+#: school-chatbot.php:1799
+#: school-chatbot.php:1820
+msgid "Pagina:"
+msgstr ""
+
+#: school-chatbot.php:628
+msgid "Pannello accessibilità"
+msgstr ""
+
+#: school-chatbot.php:1841
+#: school-chatbot.php:1907
+msgid "Parametri non validi"
+msgstr ""
+
+#. translators: %s: esempio di shortcode con parametri
+#: school-chatbot.php:725
+msgid "Parametri opzionali: %s"
+msgstr ""
+
+#: school-chatbot.php:1232
+#: school-chatbot.php:1409
+msgid "Parla"
+msgstr ""
+
+#: school-chatbot.php:588
+#: school-chatbot.php:1816
+msgid "Parola bloccata rilevata"
+msgstr ""
+
+#: school-chatbot.php:483
+msgid "Parole bloccate"
+msgstr ""
+
+#: school-chatbot.php:1819
+msgid "Parole rilevate:"
+msgstr ""
+
+#: school-chatbot.php:1164
+msgid "Permessi insufficienti"
+msgstr ""
+
+#: school-chatbot.php:354
+msgid "Posizione widget"
+msgstr ""
+
+#: school-chatbot.php:1280
+msgid "Prima di iniziare"
+msgstr ""
+
+#: school-chatbot.php:1493
+msgid "Prima di scrivere devi prendere visione dell'informativa."
+msgstr ""
+
+#: school-chatbot.php:938
+msgid "Prima domanda"
+msgstr ""
+
+#: school-chatbot.php:304
+msgid "Provider AI"
+msgstr ""
+
+#: school-chatbot.php:397
+msgid "Rate Limiting"
+msgstr ""
+
+#: school-chatbot.php:572
+msgid "Ricevi notifiche su Slack, Discord, Teams o qualsiasi servizio webhook."
+msgstr ""
+
+#: school-chatbot.php:701
+msgid "Ricostruisci indice ora"
+msgstr ""
+
+#: school-chatbot.php:738
+msgid "Ricostruzione in corso..."
+msgstr ""
+
+#: school-chatbot.php:541
+msgid "Rileva lingua dal messaggio dell'utente e rispondi nella stessa lingua"
+msgstr ""
+
+#: school-chatbot.php:537
+msgid "Rilevamento automatico"
+msgstr ""
+
+#: school-chatbot.php:1809
+msgid "Risposta:"
+msgstr ""
+
+#: school-chatbot.php:430
+msgid "Salva il testo dei messaggi nel database"
+msgstr ""
+
+#: school-chatbot.php:153
+#: school-chatbot.php:154
+msgid "School Chatbot"
+msgstr ""
+
+#: school-chatbot.php:800
+msgid "School Chatbot - Analytics"
+msgstr ""
+
+#: school-chatbot.php:932
+msgid "School Chatbot - Conversazioni"
+msgstr ""
+
+#: school-chatbot.php:285
+msgid "School Chatbot - Impostazioni"
+msgstr ""
+
+#: school-chatbot.php:1417
+#: school-chatbot.php:1460
+msgid "Scrivi un messaggio..."
+msgstr ""
+
+#: school-chatbot.php:469
+msgid "Se compilato, viene mostrato un link all'informativa della scuola dentro l'avviso iniziale."
+msgstr ""
+
+#: school-chatbot.php:853
+msgid "Se dopo qualche decina di messaggi resta a 0%, la cache non sta funzionando: l'indice del sito potrebbe essere troppo piccolo per la soglia minima, oppure cambia troppo spesso. Contatore cumulativo dall'installazione."
+msgstr ""
+
+#: school-chatbot.php:1283
+msgid "Se hai meno di 14 anni puoi usare questo assistente solo con l'autorizzazione di un genitore o di chi ne fa le veci."
+msgstr ""
+
+#: school-chatbot.php:714
+msgid "Shortcode"
+msgstr ""
+
+#: school-chatbot.php:647
+msgid "Sintesi vocale (TTS)"
+msgstr ""
+
+#: school-chatbot.php:495
+msgid "Sostituisci con asterischi e invia"
+msgstr ""
+
+#: school-chatbot.php:1308
+msgid "Stai scrivendo a un assistente basato su intelligenza artificiale, non a un operatore umano. Le risposte possono contenere errori: per informazioni ufficiali rivolgiti alla segreteria."
+msgstr ""
+
+#: school-chatbot.php:1233
+msgid "Sto ascoltando... (clicca per fermare)"
+msgstr ""
+
+#: school-chatbot.php:686
+#: school-chatbot.php:1400
+msgid "Tema scuro"
+msgstr ""
+
+#: school-chatbot.php:619
+msgid "Tentativi con parole bloccate"
+msgstr ""
+
+#: school-chatbot.php:569
+msgid "URL Webhook"
+msgstr ""
+
+#: school-chatbot.php:466
+msgid "URL informativa privacy"
+msgstr ""
+
+#: school-chatbot.php:1817
+msgid "Un messaggio è stato bloccato dalla blocklist."
+msgstr ""
+
+#: school-chatbot.php:1807
+msgid "Un utente ha dato feedback negativo."
+msgstr ""
+
+#: school-chatbot.php:1796
+msgid "Una domanda non ha ricevuto risposta."
+msgstr ""
+
+#: school-chatbot.php:365
+msgid "Una domanda per riga"
+msgstr ""
+
+#: school-chatbot.php:485
+msgid "Una parola o frase per riga"
+msgstr ""
+
+#: school-chatbot.php:643
+msgid "Usa il riconoscimento vocale del browser (richiede HTTPS)."
+msgstr ""
+
+#. translators: %s: shortcode da copiare
+#: school-chatbot.php:718
+msgid "Usa lo shortcode %s per incorporare il chatbot in una pagina."
+msgstr ""
+
+#: school-chatbot.php:327
+msgid "Usato solo con provider Anthropic. Opus 5 è il più capace; Haiku 4.5 il più economico."
+msgstr ""
+
+#: school-chatbot.php:334
+msgid "Usato solo con provider OpenAI. Default: gpt-4o-mini."
+msgstr ""
+
+#: school-chatbot.php:1234
+msgid "Utile"
+msgstr ""
+
+#: school-chatbot.php:955
+msgid "Vedi"
+msgstr ""
+
+#: school-chatbot.php:666
+msgid "Veloce"
+msgstr ""
+
+#: school-chatbot.php:660
+msgid "Velocità lettura"
+msgstr ""
+
+#: school-chatbot.php:447
+msgid "data_evento"
+msgstr ""
+
+#. translators: %s: numero di token letti dalla cache
+#: school-chatbot.php:847
+msgid "dell'input servito dalla cache (%s token a costo ridotto)."
+msgstr ""
+
+#: school-chatbot.php:439
+msgid "giorni"
+msgstr ""
+
+#: school-chatbot.php:403
+msgid "messaggi ogni"
+msgstr ""
+
+#: school-chatbot.php:405
+msgid "secondi"
+msgstr ""
+
+#: school-chatbot.php:292
+msgid "⏸️ Chatbot DISATTIVATO"
+msgstr ""
+
+#: school-chatbot.php:625
+msgid "♿ Accessibilità"
+msgstr ""
+
+#: school-chatbot.php:292
+msgid "✅ Chatbot ATTIVO"
+msgstr ""
+
+#: school-chatbot.php:507
+msgid "🌍 Multilingua"
+msgstr ""
+
+#: school-chatbot.php:562
+msgid "🔔 Webhook e Notifiche"
+msgstr ""
+
+#: school-chatbot.php:480
+msgid "🚫 Blocklist Parole"
+msgstr ""
+
