@@ -1,6 +1,6 @@
 # School Chatbot AI - Plugin WordPress
 
-**Versione:** 1.0.0  
+**Versione:** 1.1.0  
 **Autore:** Davide Bertolino  
 **Sito:** [www.davidebertolino.it](https://www.davidebertolino.it)
 
@@ -350,7 +350,7 @@ pagine dalla conoscenza del chatbot senza che nessuno se ne accorga.
 
 ## Changelog
 
-### 1.0.0
+### 1.1.0
 
 **Conformità AI Act**
 - Aggiunta informativa sulla natura artificiale dell'assistente, mostrata al
@@ -415,7 +415,11 @@ pagine dalla conoscenza del chatbot senza che nessuno se ne accorga.
 - Aggiunto `uninstall.php`: alla disinstallazione non restano tabelle, opzioni,
   transient o cron
 - Adottato il design system admin condiviso `db-admin-ui.css`
-- Allineata la numerazione di versione
+- Aggiunto workflow di rilascio: lo ZIP installabile viene costruito e allegato
+  alla Release GitHub al push di un tag `v*`
+
+### 1.0.0
+- Primo rilascio pubblico, con i contenuti della 0.10.0
 
 ### 0.10.0
 - Aggiunto input vocale (Speech-to-Text) con pulsante microfono

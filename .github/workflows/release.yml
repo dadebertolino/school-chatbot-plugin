@@ -1,0 +1,106 @@
+name: Build e Release
+
+# Si attiva quando pushi un tag tipo v1.1.0
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Ricava la versione dal tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Verifica coerenza versione <-> tag
+        run: |
+          TAG_VER="${{ steps.ver.outputs.version }}"
+          HEADER_VER=$(grep -oP 'Version:\s*\K[0-9.]+' school-chatbot.php)
+          CONST_VER=$(grep -oP "SCB_VERSION', '\K[0-9.]+" school-chatbot.php)
+          README_VER=$(grep -oP '\*\*Versione:\*\* \K[0-9.]+' README.md)
+          echo "Tag=$TAG_VER  Header=$HEADER_VER  Costante=$CONST_VER  README=$README_VER"
+          if [ "$HEADER_VER" != "$TAG_VER" ] || [ "$CONST_VER" != "$TAG_VER" ] || [ "$README_VER" != "$TAG_VER" ]; then
+            echo "::error::Versione non coerente col tag ($TAG_VER): header=$HEADER_VER costante=$CONST_VER readme=$README_VER"
+            exit 1
+          fi
+
+      - name: Lint PHP
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" -print0 \
+            | xargs -0 -n1 -P4 php -l
+
+      - name: Verifica che il catalogo traduzioni sia aggiornato
+        run: |
+          # Confronto stretto: make-pot.php ricava la versione dall'header del
+          # plugin, quindi un .pot rigenerato coincide sempre con quello
+          # committato. Una differenza significa che il catalogo è stale —
+          # inclusa la riga di versione dopo un bump.
+          cp languages/school-chatbot.pot /tmp/pot-committed.pot
+          php bin/make-pot.php >/dev/null
+          if ! diff -q /tmp/pot-committed.pot languages/school-chatbot.pot >/dev/null; then
+            echo "::error::languages/school-chatbot.pot non è aggiornato. Esegui 'php bin/make-pot.php' e committa il risultato."
+            diff /tmp/pot-committed.pot languages/school-chatbot.pot | head -40
+            exit 1
+          fi
+
+      - name: Costruisci lo ZIP
+        run: |
+          SLUG="school-chatbot-plugin"
+          mkdir -p build/"$SLUG"
+          rsync -a ./ build/"$SLUG"/ \
+            --exclude ".git" \
+            --exclude ".github" \
+            --exclude "bin" \
+            --exclude "build" \
+            --exclude "node_modules" \
+            --exclude "vendor" \
+            --exclude "*.zip" \
+            --exclude ".DS_Store" \
+            --exclude ".gitignore"
+          cd build
+          zip -r "../${SLUG}-${GITHUB_REF_NAME}.zip" "$SLUG" >/dev/null
+          cd ..
+          echo "Contenuto pacchetto:"
+          unzip -l "${SLUG}-${GITHUB_REF_NAME}.zip"
+
+      - name: Verifica il pacchetto
+        run: |
+          SLUG="school-chatbot-plugin"
+          ZIP="${SLUG}-${GITHUB_REF_NAME}.zip"
+          # Il file principale deve stare dentro la cartella con lo slug giusto,
+          # altrimenti WordPress installa il plugin in una directory sbagliata.
+          for REQUIRED in \
+            "$SLUG/school-chatbot.php" \
+            "$SLUG/uninstall.php" \
+            "$SLUG/inc/class-updater.php" \
+            "$SLUG/assets/chatbot.js" \
+            "$SLUG/assets/chatbot.css" \
+            "$SLUG/assets/css/db-admin-ui.css" \
+            "$SLUG/languages/school-chatbot.pot"
+          do
+            if ! unzip -l "$ZIP" | grep -q " $REQUIRED\$"; then
+              echo "::error::Manca dal pacchetto: $REQUIRED"
+              exit 1
+            fi
+          done
+          echo "Pacchetto completo."
+
+      - name: Crea la Release e allega lo ZIP
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "School Chatbot AI ${{ github.ref_name }}"
+          files: school-chatbot-plugin-${{ github.ref_name }}.zip
+          generate_release_notes: true

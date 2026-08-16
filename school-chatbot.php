@@ -3,7 +3,7 @@
  * Plugin Name: School Chatbot AI
  * Plugin URI: https://www.davidebertolino.it
  * Description: Chatbot AI per siti scolastici - risponde a domande su orari, pagine e navigazione
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Davide Bertolino
  * Author URI: https://www.davidebertolino.it
  * Requires at least: 5.8
@@ -15,14 +15,14 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('SCB_VERSION', '1.0.0');
+define('SCB_VERSION', '1.1.0');
 define('SCB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SCB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('SCB_MAX_HISTORY', 10); // Messaggi di contesto per conversazione
 
 // Aggiornamenti automatici da GitHub Releases
 require_once SCB_PLUGIN_DIR . 'inc/class-updater.php';
-new DB_GitHub_Updater(__FILE__, 'dadebertolino', 'school-chatbot-ai');
+new DB_GitHub_Updater(__FILE__, 'dadebertolino', 'school-chatbot-plugin');
 
 class School_Chatbot {
     

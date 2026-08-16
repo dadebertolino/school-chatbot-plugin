@@ -1,0 +1,12 @@
+# Artefatti di build del workflow di rilascio
+/build/
+*.zip
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
