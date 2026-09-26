@@ -3,7 +3,7 @@
  * Plugin Name: School Chatbot AI
  * Plugin URI: https://www.davidebertolino.it
  * Description: Chatbot AI per siti scolastici - risponde a domande su orari, pagine e navigazione
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Davide Bertolino
  * Author URI: https://www.davidebertolino.it
  * Requires at least: 5.8
@@ -15,7 +15,31 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('SCB_VERSION', '1.1.0');
+/**
+ * Privacy capabilities (per references/PRIVACY-INTEGRATION.md):
+ *  - Personal data:        YES — conversazioni in wp_scb_conversations (session_id
+ *                          pseudonimo, user_id se loggato, page_url, timestamp) e
+ *                          messaggi in wp_scb_messages (testo, feedback; testo
+ *                          disattivabile con scb_store_messages). Nessun IP salvato
+ *                          (solo hash salato nei transient di rate limiting).
+ *                          Conservazione: scb_retention_days (default 90), cron
+ *                          giornaliero scb_cleanup_logs.
+ *  - Extra-EU transfer:    YES — testo dei messaggi + contesto inviati server-side al
+ *                          provider configurato (Anthropic o OpenAI); webhook opzionale.
+ *  - Third-party scripts:  NO — nessuno script esterno sul frontend (l'input vocale usa
+ *                          la Web Speech API del browser, dichiarata nel registro).
+ *  - User consent:         NO — l'avviso al primo uso (L. 132/2025, AI Act art. 50) è
+ *                          una presa visione informativa, non un consenso; resta nel
+ *                          browser e non viene archiviato lato server.
+ *  - DSAR-aware:           YES — SCB_Privacy_DSAR (conversazioni collegate all'account
+ *                          WordPress o con l'email citata nei messaggi dell'utente);
+ *                          cancellazione immediata su deleted_user / remove_user_from_blog.
+ *  - Hub-aware:            YES — SCB_Privacy_Declarations su dbph_processing_register
+ *                          (+ legacy dbseo_processing_register) e dbph_policy_destinatari.
+ */
+define('SCB_DSAR_AVAILABLE', true);
+
+define('SCB_VERSION', '1.2.0');
 define('SCB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SCB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('SCB_MAX_HISTORY', 10); // Messaggi di contesto per conversazione
@@ -23,6 +47,13 @@ define('SCB_MAX_HISTORY', 10); // Messaggi di contesto per conversazione
 // Aggiornamenti automatici da GitHub Releases
 require_once SCB_PLUGIN_DIR . 'inc/class-updater.php';
 new DB_GitHub_Updater(__FILE__, 'dadebertolino', 'school-chatbot-plugin');
+
+// Integrazione ecosistema DB privacy (opzionale: senza DB Privacy Hub i filtri
+// dbph_* non vengono mai applicati; il DSAR usa comunque i filtri core di WP)
+require_once SCB_PLUGIN_DIR . 'inc/class-privacy-declarations.php';
+require_once SCB_PLUGIN_DIR . 'inc/class-privacy-dsar.php';
+SCB_Privacy_Declarations::init();
+SCB_Privacy_DSAR::init();
 
 class School_Chatbot {
     
@@ -43,6 +74,12 @@ class School_Chatbot {
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+        add_action('admin_notices', [$this, 'render_voice_input_notice']);
+        add_action('admin_init', [$this, 'handle_voice_notice_dismiss']);
+
+        // Migrazioni tra versioni (anche per aggiornamenti che non passano
+        // dall'hook di attivazione, es. updater GitHub)
+        add_action('init', [$this, 'maybe_upgrade']);
         
         // Frontend
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
@@ -91,6 +128,11 @@ class School_Chatbot {
      */
     public function activate() {
         global $wpdb;
+
+        // Prima di creare le tabelle: maybe_upgrade() usa la loro esistenza per
+        // distinguere una nuova installazione da un sito già in uso
+        $this->maybe_upgrade();
+
         $charset_collate = $wpdb->get_charset_collate();
         
         // Tabella conversazioni
@@ -138,6 +180,97 @@ class School_Chatbot {
         dbDelta($sql3);
     }
     
+    /**
+     * Migrazioni una tantum, guidate dall'opzione scb_version (introdotta in 1.2.0).
+     */
+    public function maybe_upgrade() {
+        $stored = get_option('scb_version', '');
+        if ($stored === SCB_VERSION) {
+            return;
+        }
+
+        // 1.2.0 — l'input vocale (Web Speech API: in Chrome l'audio va ai server
+        // Google) passa da attivo a disattivo per impostazione predefinita.
+        // Nuove installazioni: nessuna opzione salvata => vale il nuovo default (0).
+        // Siti esistenti che non hanno mai salvato l'opzione: si salva il VECCHIO
+        // default (1) per non cambiarne il comportamento in silenzio, e si mostra
+        // un avviso una tantum che invita a rivederlo. Chi l'aveva già salvata
+        // (attiva o no) mantiene il proprio valore.
+        if (($stored === '' || version_compare($stored, '1.2.0', '<'))
+            && $this->is_existing_install()
+            && get_option('scb_enable_voice_input', null) === null) {
+            add_option('scb_enable_voice_input', 1);
+            update_option('scb_voice_notice_pending', 1, false);
+        }
+
+        update_option('scb_version', SCB_VERSION);
+    }
+
+    /**
+     * True se il plugin era già installato prima dell'introduzione di scb_version
+     * (tabelle create da una versione precedente o impostazioni già salvate).
+     */
+    private function is_existing_install() {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'scb_conversations';
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) === $table) {
+            return true;
+        }
+
+        return (bool) $wpdb->get_var($wpdb->prepare(
+            "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s AND option_name <> 'scb_version' LIMIT 1",
+            $wpdb->esc_like('scb_') . '%'
+        ));
+    }
+
+    /**
+     * Avviso una tantum (1.2.0) per i siti in cui l'input vocale è rimasto attivo
+     * per effetto del vecchio default. Solo bacheca e pagine del plugin.
+     */
+    public function render_voice_input_notice() {
+        if (!current_user_can('manage_options') || !get_option('scb_voice_notice_pending')) {
+            return;
+        }
+
+        // Se l'admin l'ha già disattivato, l'avviso non serve più
+        if (!get_option('scb_enable_voice_input', 0)) {
+            delete_option('scb_voice_notice_pending');
+            return;
+        }
+
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if (!$screen || ($screen->id !== 'dashboard' && strpos($screen->id, 'school-chatbot') === false)) {
+            return;
+        }
+
+        $settings_url = admin_url('admin.php?page=school-chatbot#scb-voice-input');
+        $dismiss_url  = wp_nonce_url(add_query_arg('scb_dismiss_voice_notice', '1'), 'scb_dismiss_voice_notice');
+        ?>
+        <div class="notice notice-warning">
+            <p><strong><?php esc_html_e('School Chatbot: verifica l\'input vocale', 'school-chatbot'); ?></strong></p>
+            <p><?php esc_html_e('L\'input vocale del chatbot è attivo. Usa il riconoscimento vocale del browser: in Google Chrome l\'audio viene inviato ai server di Google, anche fuori dallo SEE. Dalla versione 1.2.0 la funzione è disattivata per impostazione predefinita sulle nuove installazioni; sul tuo sito è rimasta attiva per non cambiarne il comportamento. Se il chatbot è usato da minori, valuta di disattivarla.', 'school-chatbot'); ?></p>
+            <p>
+                <a href="<?php echo esc_url($settings_url); ?>" class="button button-primary"><?php esc_html_e('Rivedi l\'impostazione', 'school-chatbot'); ?></a>
+                <a href="<?php echo esc_url($dismiss_url); ?>" class="button"><?php esc_html_e('Non mostrare più', 'school-chatbot'); ?></a>
+            </p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Chiusura definitiva dell'avviso sull'input vocale
+     */
+    public function handle_voice_notice_dismiss() {
+        if (empty($_GET['scb_dismiss_voice_notice']) || !current_user_can('manage_options')) {
+            return;
+        }
+        check_admin_referer('scb_dismiss_voice_notice');
+        delete_option('scb_voice_notice_pending');
+        wp_safe_redirect(remove_query_arg(['scb_dismiss_voice_notice', '_wpnonce']));
+        exit;
+    }
+
     /**
      * Disattivazione plugin
      */
@@ -268,7 +401,8 @@ class School_Chatbot {
         register_setting('scb_settings', 'scb_enable_accessibility_panel', ['default' => 1]);
         register_setting('scb_settings', 'scb_default_font_size', ['default' => 'normal']);
         register_setting('scb_settings', 'scb_default_contrast', ['default' => 'normal']);
-        register_setting('scb_settings', 'scb_enable_voice_input', ['default' => 1]);
+        // Disattivo di default dalla 1.2.0 (vedi maybe_upgrade per i siti esistenti)
+        register_setting('scb_settings', 'scb_enable_voice_input', ['default' => 0]);
     }
     
     /**
@@ -633,14 +767,14 @@ class School_Chatbot {
                             </label>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="scb-voice-input">
                         <th scope="row"><?php esc_html_e('Input vocale', 'school-chatbot'); ?></th>
                         <td>
                             <label>
-                                <input type="checkbox" name="scb_enable_voice_input" value="1" <?php checked(get_option('scb_enable_voice_input', 1)); ?>>
+                                <input type="checkbox" name="scb_enable_voice_input" value="1" <?php checked(get_option('scb_enable_voice_input', 0)); ?>>
                                 <?php esc_html_e('Mostra pulsante microfono 🎤 per dettare messaggi', 'school-chatbot'); ?>
                             </label>
-                            <p class="description"><?php esc_html_e('Usa il riconoscimento vocale del browser (richiede HTTPS).', 'school-chatbot'); ?></p>
+                            <p class="description"><?php esc_html_e('Disattivato per impostazione predefinita. Usa il riconoscimento vocale del browser (richiede HTTPS): l\'audio viene elaborato dal fornitore del browser, che può inviarlo ai propri server anche fuori dallo SEE (in Google Chrome va ai server di Google). Il sito non riceve l\'audio, solo il testo trascritto. Se il chatbot è usato da minori, valuta con attenzione prima di attivarlo.', 'school-chatbot'); ?></p>
                         </td>
                     </tr>
                     <tr>
@@ -1221,7 +1355,7 @@ class School_Chatbot {
             'enableAccessibilityPanel' => (bool) get_option('scb_enable_accessibility_panel', 1),
             'defaultFontSize' => get_option('scb_default_font_size', 'normal'),
             'defaultContrast' => get_option('scb_default_contrast', 'normal'),
-            'enableVoiceInput' => (bool) get_option('scb_enable_voice_input', 1),
+            'enableVoiceInput' => (bool) get_option('scb_enable_voice_input', 0),
             'ageGateEnabled' => $this->age_gate_enabled(),
             // Cambiare versione forza una nuova presa d'atto anche a chi
             // l'aveva già data: serve quando cambia il testo dell'informativa.

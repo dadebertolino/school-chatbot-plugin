@@ -86,6 +86,8 @@ jobs:
             "$SLUG/school-chatbot.php" \
             "$SLUG/uninstall.php" \
             "$SLUG/inc/class-updater.php" \
+            "$SLUG/inc/class-privacy-declarations.php" \
+            "$SLUG/inc/class-privacy-dsar.php" \
             "$SLUG/assets/chatbot.js" \
             "$SLUG/assets/chatbot.css" \
             "$SLUG/assets/css/db-admin-ui.css" \

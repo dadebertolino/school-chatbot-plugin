@@ -1,6 +1,6 @@
 # School Chatbot AI - Plugin WordPress
 
-**Versione:** 1.1.0  
+**Versione:** 1.2.0  
 **Autore:** Davide Bertolino  
 **Sito:** [www.davidebertolino.it](https://www.davidebertolino.it)
 
@@ -319,12 +319,116 @@ impostazioni.
   chiaro, e i contatori vivono pochi secondi.
 - La disinstallazione rimuove tabelle, opzioni e transient senza lasciare
   residui.
+- Le conversazioni collegate a un account o a un indirizzo email possono essere
+  esportate e cancellate con gli strumenti privacy di WordPress (vedi sotto).
+
+**Input vocale.** La dettatura (pulsante microfono) è **disattivata per
+impostazione predefinita** dalla 1.2.0. Usa la Web Speech API del browser: il
+plugin riceve solo il testo trascritto, ma l'audio è elaborato dal fornitore del
+browser — in Google Chrome viene inviato ai server di Google, anche fuori dallo
+SEE. Su un sito frequentato da minori valuta con attenzione prima di attivarla
+(Impostazioni → Accessibilità → Input vocale). Sui siti aggiornati da una
+versione precedente che non avevano mai salvato questa impostazione, la 1.2.0
+mantiene il vecchio comportamento (attiva) e mostra una sola volta un avviso
+all'amministratore che invita a rivederla.
 
 Non troverai qui la frase "conforme al GDPR": la conformità di un trattamento
 dipende da come lo configura e lo documenta chi lo mette in esercizio, non da
 un'affermazione del software. Quello che il plugin può offrire è di rendere
 verificabile cosa fa — il codice è pubblico e questa sezione descrive
 esattamente i dati che escono.
+
+## Integrazione ecosistema DB privacy
+
+Quando **DB Privacy Hub** (o, in modalità legacy, DB SEO Manager 1.2.x) è
+installato, School Chatbot AI vi si integra automaticamente, senza
+configurazione. Senza quei plugin non succede nulla di diverso, e l'esportazione
+e cancellazione dei dati funziona comunque tramite gli strumenti core di
+WordPress.
+
+### Dichiarazione trattamenti al registro privacy unificato
+
+Il plugin dichiara nel pannello *Privacy → Registro trattamenti* (filtri
+`dbph_processing_register` e legacy `dbseo_processing_register`, deduplicati per
+`id`) solo i trattamenti effettivamente attivi, leggendo le impostazioni reali:
+
+| ID | Quando appare |
+|---|---|
+| `scb_conversations` | chatbot attivo con API key, oppure conversazioni ancora in archivio |
+| `scb_ai_provider` | chatbot attivo con API key: descrive il provider selezionato (Anthropic o OpenAI) e il trasferimento extra-UE |
+| `scb_notifications` | webhook configurato con almeno un evento, o notifiche email attive |
+| `scb_voice_input` | input vocale attivo |
+
+Ogni voce compila gli 8 campi del registro (id, label, status, purpose,
+legal_basis, data_collected, retention, transfers). La conservazione riportata è
+quella configurata in *Cancella le conversazioni dopo N giorni*.
+
+**Base giuridica: la sceglie il titolare.** Il plugin non sa se l'istituto è
+statale o paritario, quindi il testo presenta entrambe le ipotesi come *da
+confermare*: compito di interesse pubblico (art. 6.1.e GDPR, art. 2-ter Codice
+privacy) per le scuole statali — che non possono invocare il legittimo interesse
+nell'esecuzione dei propri compiti — e legittimo interesse (art. 6.1.f), con
+bilanciamento che tenga conto dei minori, per paritarie ed enti privati. Una
+volta deciso con il DPO, fissa il testo definitivo:
+
+```php
+add_filter('scb_privacy_legal_basis', function () {
+    return 'Esecuzione di un compito di interesse pubblico (art. 6.1.e GDPR) ...';
+});
+```
+
+**Trasferimento extra-UE: descritto con prudenza.** Le voci indicano la società
+statunitense (Anthropic PBC / OpenAI, L.L.C.) e l'entità contraente che di norma
+serve i clienti dello SEE (Anthropic Ireland, Limited / OpenAI Ireland Ltd),
+precisando che il trattamento può comunque avvenire negli USA. Le garanzie (SCC
+nel DPA del fornitore e/o EU-U.S. Data Privacy Framework) sono riportate come
+*da verificare nel contratto con il fornitore*: il plugin non può sapere quale
+accordo la scuola ha effettivamente sottoscritto.
+
+### Destinatari nella Privacy Policy generata
+
+Sul filtro `dbph_policy_destinatari` il plugin aggiunge il provider AI
+configurato (`name` / `description` / `country`), qualificato come responsabile
+del trattamento (art. 28) in base ai termini commerciali API e al DPA, con paese
+*Stati Uniti (extra-UE)*; se è attivo un webhook, anche il suo host. Se dichiari
+il fornitore anche tra i *Responsabili* dell'Hub (consigliato, con gli estremi del
+DPA), usa come nome **Anthropic** oppure **OpenAI**: l'Hub riconosce il nome e non
+lo ripete due volte.
+
+### DSAR routing via Privacy Hub
+
+*Strumenti → Esporta / Cancella dati personali* trovano le conversazioni
+riconducibili all'indirizzo email richiesto:
+
+- avviate da un utente **loggato** con l'account WordPress che ha quell'email
+  (`user_id`);
+- contenenti **quell'indirizzo email** in un messaggio scritto dall'utente
+  (pre-filtro SQL, verifica esatta in PHP).
+
+L'esportazione include metadati e messaggi di ogni conversazione; la
+cancellazione elimina l'intera conversazione (anche le risposte del bot, che
+possono riprendere i dati dell'utente) e avvisa che le copie già trasmesse al
+provider AI o inviate via webhook/email restano fuori dalla portata del sito.
+Le conversazioni **anonime** (solo identificativo di sessione del browser) non
+sono riconducibili a un'email: per quelle vale la cancellazione automatica a
+scadenza.
+
+**Cancellazione dell'account.** Quando un utente WordPress viene eliminato
+(`deleted_user`) — o, su multisite, rimosso da un sito (`remove_user_from_blog`,
+eseguito anche da `wpmu_delete_user` su ogni sito) — le sue conversazioni e i
+relativi messaggi vengono cancellati subito, a lotti, senza attendere la
+scadenza. L'eventuale riassegnazione dei contenuti a un altro utente è ignorata
+di proposito: le conversazioni sono dati personali, non contenuti del sito.
+
+Doppio canale: `dbph_user_data_exporters` / `dbph_user_data_erasers` quando
+l'Hub è presente (che le rilancia sui filtri core e registra lo storico DSAR),
+altrimenti direttamente `wp_privacy_personal_data_exporters` / `_erasers`.
+
+### Marker `SCB_DSAR_AVAILABLE`
+
+La costante `SCB_DSAR_AVAILABLE` documenta che il plugin implementa il DSAR; il
+filtro `dbph_dsar_available` (restituisce `true`) fa sì che la Privacy Policy
+generata dall'Hub menzioni la procedura di accesso e cancellazione.
 
 ## Costi
 
@@ -349,6 +453,82 @@ deliberata, perché un limite numerico farebbe sparire silenziosamente delle
 pagine dalla conoscenza del chatbot senza che nessuno se ne accorga.
 
 ## Changelog
+
+### 1.2.0 — Integrazione ecosistema DB privacy (registro trattamenti, destinatari, DSAR)
+
+**Registro trattamenti (DB Privacy Hub / DB SEO Manager legacy):**
+- Nuova classe `SCB_Privacy_Declarations` (`inc/class-privacy-declarations.php`)
+  agganciata a `dbph_processing_register` e `dbseo_processing_register`.
+- Dichiarazioni dinamiche: `scb_conversations` (chatbot operativo o dati ancora
+  in archivio), `scb_ai_provider` (solo con API key; testo specifico per Anthropic
+  o OpenAI), `scb_notifications` (webhook/email), `scb_voice_input` (dettatura).
+  Voci inattive non generate: nessuna dichiarazione di trattamenti inesistenti.
+- Inventario dichiarato: testo dei messaggi (o sua assenza con
+  `scb_store_messages` off), `session_id` pseudonimo, `user_id` se loggato,
+  `page_url`, timestamp, feedback; IP mai salvato (solo hash salato nei transient
+  di rate limiting); al provider AI vanno testo, fino a 10 messaggi di storico,
+  indice pubblico del sito e informazioni aggiuntive — non IP, sessione, utente.
+- Conservazione dichiarata = `scb_retention_days` (default 90) con pulizia
+  giornaliera `scb_cleanup_logs`, già presente dalla 1.1.0.
+- Base giuridica presentata come scelta del titolare: art. 6.1.e per le scuole
+  statali, art. 6.1.f con bilanciamento per paritarie/private; nuovo filtro
+  `scb_privacy_legal_basis` per fissare il testo deciso con il DPO.
+- Trasferimento extra-UE descritto con prudenza: Anthropic PBC / Anthropic
+  Ireland, Limited e OpenAI, L.L.C. / OpenAI Ireland Ltd, garanzie SCC/DPF
+  "da verificare nel contratto con il fornitore".
+
+**Destinatari della Privacy Policy:**
+- Filtro `dbph_policy_destinatari`: provider AI configurato come responsabile
+  (art. 28) con paese Stati Uniti (extra-UE); host del webhook se configurato.
+
+**DSAR (art. 15 e 17 GDPR):**
+- Nuova classe `SCB_Privacy_DSAR` (`inc/class-privacy-dsar.php`), doppio canale
+  `dbph_user_data_exporters`/`_erasers` (chiave `label`) e fallback
+  `wp_privacy_personal_data_exporters`/`_erasers` saltato se esiste `DBPH_DSAR`.
+- Match: conversazioni dell'account WordPress con quell'email (`user_id`) e
+  conversazioni in cui l'utente ha scritto l'email (LIKE + verifica esatta).
+  Anonime escluse per costruzione.
+- Export paginato (50 conversazioni per chiamata, `done` sulla finestra SQL);
+  erase a cursore per id con transient `scb_dsar_erase_*`, terminazione
+  garantita anche con falsi positivi; cancella messaggi prima delle
+  conversazioni (FK non garantita su MyISAM). Messaggi all'admin sulle copie
+  presso il provider AI e sui canali di notifica.
+- Cancellazione immediata di conversazioni e messaggi dell'utente alla
+  cancellazione dell'account (`deleted_user`) e, su multisite, alla rimozione
+  da un sito (`remove_user_from_blog`, con `switch_to_blog` sul sito giusto):
+  lotti da 200, messaggi prima delle conversazioni, `$reassign` ignorato
+  (dati personali, non contenuti). Niente più righe orfane fino alla retention.
+- Costante `SCB_DSAR_AVAILABLE` e filtro `dbph_dsar_available` per la menzione
+  della procedura nella Privacy Policy generata dall'Hub.
+
+**Documentazione e manutenzione:**
+- Blocco "Privacy capabilities" nell'header del file principale.
+- README: sezione "Integrazione ecosistema DB privacy"; nota sull'input vocale
+  (Web Speech API: alcuni browser inviano l'audio al proprio fornitore).
+- `uninstall.php` rimuove anche i transient `scb_dsar_*`; `bin/make-pot.php`
+  scansiona i nuovi file; il workflow di rilascio verifica la loro presenza nello
+  ZIP.
+
+**Input vocale disattivato per impostazione predefinita (privacy by design):**
+- `scb_enable_voice_input` passa da default 1 a default 0: le nuove
+  installazioni non mostrano il pulsante microfono finché l'amministratore non
+  lo abilita (la Web Speech API in Chrome invia l'audio ai server di Google).
+- Siti esistenti: chi aveva salvato l'impostazione mantiene il proprio valore;
+  chi non l'aveva mai salvata riceve, all'aggiornamento, il vecchio default
+  (attiva) memorizzato esplicitamente, così il comportamento non cambia in
+  silenzio, più un avviso una tantum (solo `manage_options`, bacheca e pagine
+  del plugin) con link all'impostazione e raccomandazione di rivederla se il
+  chatbot è usato da minori. L'avviso sparisce se si chiude o se l'input vocale
+  viene disattivato.
+- Nuova opzione `scb_version` per le migrazioni tra versioni (eseguite su `init`
+  e all'attivazione, quindi anche con l'aggiornamento dall'updater GitHub);
+  `uninstall.php` rimuove `scb_version` e `scb_voice_notice_pending`.
+- Descrizione dell'impostazione e dichiarazione `scb_voice_input` aggiornate
+  (audio al fornitore del browser, disattivata di default).
+
+**Nessun breaking change**: nessuna modifica allo schema; l'unico default
+cambiato (input vocale) non altera i siti esistenti. Senza DB Privacy Hub le
+dichiarazioni restano inerti.
 
 ### 1.1.0
 

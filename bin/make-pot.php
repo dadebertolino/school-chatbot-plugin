@@ -16,7 +16,7 @@ $root = dirname(__DIR__);
 chdir($root);
 
 $domain  = 'school-chatbot';
-$sources = ['school-chatbot.php', 'uninstall.php'];
+$sources = ['school-chatbot.php', 'uninstall.php', 'inc/class-privacy-declarations.php', 'inc/class-privacy-dsar.php'];
 $out     = 'languages/school-chatbot.pot';
 
 $gettext = [

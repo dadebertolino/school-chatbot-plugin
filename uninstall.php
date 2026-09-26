@@ -66,8 +66,11 @@ $options = [
     'scb_default_font_size',
     'scb_default_contrast',
     'scb_enable_voice_input',
+    'scb_voice_notice_pending',
     // Statistiche
     'scb_token_usage',
+    // Migrazioni (1.2.0)
+    'scb_version',
 ];
 
 foreach ($options as $option) {
@@ -77,6 +80,8 @@ foreach ($options as $option) {
 // Rimuovi indice del sito e contatori rate-limit (chiavi dinamiche)
 delete_transient('scb_site_index');
 $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_scb_rate_%' OR option_name LIKE '_transient_timeout_scb_rate_%'");
+// Cursori delle richieste di cancellazione DSAR in corso (1.2.0)
+$wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_scb_dsar_%' OR option_name LIKE '_transient_timeout_scb_dsar_%'");
 
 // Rimuovi transient updater
 $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_dbgu_%'");
